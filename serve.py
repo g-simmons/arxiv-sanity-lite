@@ -26,7 +26,6 @@ from aslite.db import load_features
 # -----------------------------------------------------------------------------
 # inits and globals
 
-RET_NUM = 25 # number of papers to return per page
 
 app = Flask(__name__)
 
@@ -218,6 +217,7 @@ def main():
     opt_skip_have = request.args.get('skip_have', default_skip_have) # hide papers we already have?
     opt_svm_c = request.args.get('svm_c', '') # svm C parameter
     opt_page_number = request.args.get('page_number', '1') # page number for pagination
+    opt_ret_num = request.args.get('ret_num', '10') # number of results to return per page
 
     # if a query is given, override rank to be of type "search"
     # this allows the user to simply hit ENTER in the search field and have the correct thing happen
@@ -261,13 +261,13 @@ def main():
         keep = [i for i,pid in enumerate(pids) if pid not in have]
         pids, scores = [pids[i] for i in keep], [scores[i] for i in keep]
 
-    # crop the number of results to RET_NUM, and paginate
+    # crop the number of results to opt_ret_num, and paginate
     try:
         page_number = max(1, int(opt_page_number))
     except ValueError:
         page_number = 1
-    start_index = (page_number - 1) * RET_NUM # desired starting index
-    end_index = min(start_index + RET_NUM, len(pids)) # desired ending index
+    start_index = (page_number - 1) * int(opt_ret_num) # desired starting index
+    end_index = min(start_index + int(opt_ret_num), len(pids)) # desired ending index
     pids = pids[start_index:end_index]
     scores = scores[start_index:end_index]
 
